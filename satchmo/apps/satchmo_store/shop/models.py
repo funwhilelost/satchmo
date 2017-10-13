@@ -354,7 +354,7 @@ class Cart(models.Model):
                         try:
                             similarItem.details.get(
                                     name=detail['name'],
-                                    value=str(detail['value']),     # typecasting for Postgresql
+                                    value=unicode(detail['value']),     # typecasting for Postgresql
                                     price_change=detail['price_change']
                                     )
                         except CartItemDetails.DoesNotExist:
@@ -852,6 +852,16 @@ class Order(models.Model):
         return ' '.join(self.ship_addressee.split()[-1:]) or ''
     ship_last_name = property(_ship_last_name)
 
+    def _bill_first_name(self):
+        """Given the addressee name, try to return a billing first name. Default to contact"""
+        return ' '.join(self.bill_addressee.split()[0:-1]) or self.contact.first_name
+    bill_first_name = property(_bill_first_name)
+
+    def _bill_last_name(self):
+        """Given the addressee name, try to return a billing last name. Default to contact."""
+        return ' '.join(self.bill_addressee.split()[-1:]) or self.contact.last_name
+    bill_last_name = property(_bill_last_name)
+
     def _discounted_sub_total(self):
         return self.sub_total - self.item_discount
 
@@ -1033,7 +1043,7 @@ class Order(models.Model):
 
     def order_success(self):
         """Run each item's order_success method."""
-        log.info("Order success: %s", self)
+        log.info("Order success: %s" % self)
         for orderitem in self.orderitem_set.all():
             subtype = orderitem.product.get_subtype_with_attr('order_success')
             if subtype:
@@ -1137,7 +1147,7 @@ class OrderItem(models.Model):
     A line item on an order.
     """
     order = models.ForeignKey(Order, verbose_name=_("Order"))
-    product = models.ForeignKey(Product, verbose_name=_("Product"))
+    product = models.ForeignKey(Product, verbose_name=_("Product"), on_delete=models.PROTECT)
     quantity = models.DecimalField(_("Quantity"),  max_digits=18,  decimal_places=6)
     unit_price = CurrencyField(_("Unit price"),
         max_digits=18, decimal_places=10)

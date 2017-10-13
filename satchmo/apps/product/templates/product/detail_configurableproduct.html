@@ -1,4 +1,4 @@
-{% extends "product/product.html" %}
+{% extends "product/product.html" %}{% load url from future %}
 {% load i18n %}
 {% load thumbnail %}
 {% load satchmo_price %}
@@ -12,7 +12,7 @@
 
 {% include "shop/_jquery.html" %}
 {% include "shop/_jquery_form.html" %}
-<script type="text/javascript" src="{{media_url}}js/satchmo_product.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/satchmo_product.js"></script>
 {% blackbird_logging %}
 <script type="text/javascript">{# Javascript which is generated uniquely for each page #}
 satchmo.default_view_tax = {% if default_view_tax %}true{% else %}false{% endif %};
@@ -42,8 +42,9 @@ satchmo.thumbnails = new Array();
 
 <span id="product_images">
 {% for pic in product.productimage_set.all %}
-    {% thumbnail pic.picture 280x280 as image %}
-    <img src="{{ image }}" width="{{ image.width }}" height="{{ image.height }}" />
+    {% thumbnail pic.picture "280x280" as image %}
+    <img src="{{ image.url }}" width="{{ image.width }}" height="{{ image.height }}" />
+    {% endthumbnail %}
 {% endfor %}
 </span>
 
@@ -56,7 +57,7 @@ satchmo.thumbnails = new Array();
 {% endif %}{% endwith %}
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-<form id="options" action="{% url satchmo_smart_add %}" method="post">{% csrf_token %}
+<form id="options" action="{% url 'satchmo_smart_add' %}" method="post">{% csrf_token %}
 {% if options %}
 <p>{% trans "Please choose your options" %}:</p>
 {% endif %}

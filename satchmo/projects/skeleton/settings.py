@@ -2,7 +2,7 @@
 # This is a recommended base setting for further customization, default for clonesatchmo.py
 import os
 
-DIRNAME = os.path.dirname(__file__)
+DIRNAME = os.path.dirname(os.path.normpath(os.path.abspath(__file__)))
 
 DJANGO_PROJECT = ''
 DJANGO_SETTINGS_MODULE = ''
@@ -36,12 +36,20 @@ MEDIA_ROOT = os.path.join(DIRNAME, 'static/')
 
 # URL that handles the media served from MEDIA_ROOT.
 # Example: "http://media.lawrence.com"
-MEDIA_URL="/static/"
+MEDIA_URL="/media/"
+
+# STATIC_ROOT can be whatever different from other dirs
+STATIC_ROOT = os.path.join(DIRNAME, 'static-collect/')
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = (
+        os.path.join(DIRNAME, 'static/'),
+)
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
+ADMIN_MEDIA_PREFIX = '/media/'  # remove for Django 1.4 as deprecated
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = ''
@@ -70,10 +78,16 @@ MIDDLEWARE_CLASSES = (
 #this is used to add additional config variables to each request
 # NOTE: If you enable the recent_products context_processor, you MUST have the
 # 'satchmo_ext.recentlist' app installed.
-TEMPLATE_CONTEXT_PROCESSORS = ('satchmo_store.shop.context_processors.settings',
-                               'django.contrib.auth.context_processors.auth',
-                               #'satchmo_ext.recentlist.context_processors.recent_products',
-                               )
+TEMPLATE_CONTEXT_PROCESSORS = (
+        'satchmo_store.shop.context_processors.settings',
+        'django.contrib.auth.context_processors.auth',
+        #'satchmo_ext.recentlist.context_processors.recent_products',
+        # do not forget following. Maybe not so important currently
+        # but will be
+        'django.core.context_processors.media',   # MEDIA_URL
+        'django.core.context_processors.static',  # STATIC_URL
+        'django.contrib.messages.context_processors.messages',
+)
 
 ROOT_URLCONF = ''
 
@@ -94,6 +108,8 @@ INSTALLED_APPS = (
     'django.contrib.comments',
     'django.contrib.sessions',
     'django.contrib.sitemaps',
+    'django.contrib.staticfiles',
+    'django.contrib.messages',
     'registration',
     'sorl.thumbnail',
     'keyedcache',
@@ -110,7 +126,6 @@ INSTALLED_APPS = (
     #'shipping.modules.tiered',
     #'satchmo_ext.newsletter',
     #'satchmo_ext.recentlist',
-    #'testimonials',         # dependency on  http://www.assembla.com/spaces/django-testimonials/
     'product',
     'product.modules.configurable',
     'product.modules.custom',
@@ -129,7 +144,6 @@ INSTALLED_APPS = (
     'satchmo_utils',
     #'shipping.modules.tieredquantity',
     #'satchmo_ext.tieredpricing',
-    #'typogrify',            # dependency on  http://code.google.com/p/typogrify/
     #'debug_toolbar',
     'app_plugins',
     'simple.localsite',
@@ -145,10 +159,11 @@ AUTHENTICATION_BACKENDS = (
 #}
 
 #### Satchmo unique variables ####
-#from django.conf.urls.defaults import patterns, include
+#from django.conf.urls import patterns, include
 SATCHMO_SETTINGS = {
     'SHOP_BASE' : '',
     'MULTISHOP' : False,
+    'DOCUMENT_CONVERTER': 'shipping.views.HTMLDocument',
     #'SHOP_URLS' : patterns('satchmo_store.shop.views',)
 }
 
